@@ -1,0 +1,49 @@
+services:
+  frontend:
+    container_name: vue
+    build:
+      context: .
+      dockerfile: ./build/docker/vue/Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5757:8000"
+    networks:
+      - app-network
+
+  backend:
+    container_name: django
+    build:
+      context: .
+      dockerfile: ./build/docker/python/Dockerfile
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    container_name: db
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: note_app
+      MYSQL_USER: note_user
+      MYSQL_PASSWORD: note_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
